@@ -1,6 +1,6 @@
 # DiskANN
 
-This is a local copy of the original DiskANN project. Code has been modified so that it compiles on Mac.
+This is a local copy of the original [DiskANN](https://github.com/microsoft/DiskANN) project. Code has been modified so that it compiles on Mac.
 Python bindings have also been added to the project. Pull Request to merge this code with the
 original project will be raised soon.
 
