@@ -119,10 +119,10 @@ class IndexSearchParams:
                                     self.L)
 
 
-class DiskAnn:
-    def __init__(self, libpath):
-        self.libpath = libpath
-        self.handle = ctypes.CDLL(shared_lib_path)
+class DiskANN:
+    def __init__(self, lib_path):
+        self.lib_path = lib_path
+        self.handle = ctypes.CDLL(lib_path)
         self.handle.build_index.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
         self.handle.search_index.argtypes = [ctypes.c_char_p,
                                              ctypes.c_char_p,
@@ -164,7 +164,7 @@ class DiskAnn:
                                        str.encode(index_params.metric), index_params_str)
 
     def search_disk_index(self, query, n, index_search_params=None):
-        '''
+        """
         Params:
         ======
         query: numpy array
@@ -180,7 +180,7 @@ class DiskAnn:
         =======
         array
             Array of tuples containing id and distance
-        '''
+        """
         query_file_path = self.save_bin_file(query)
         res_prefix = "/tmp/query_res"
         if index_search_params is None:

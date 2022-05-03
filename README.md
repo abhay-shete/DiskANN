@@ -37,11 +37,19 @@ Python bindings have been implemented under lib/pylib folder
 ```python
 from diskann import IndexBuildParams, IndexSearchParams, DiskANN
 
+# After running make, shared library used by Python will be 
+# under build/lib/pylib directory
 shared_lib_path = "./build/lib/pylib/libpydisk_index.dylib"
 index_path = "./DiskANN_data/sift"
 
 # np_vecs represents a numpy array containing input vectors
-diskAnn = DiskAnn(shared_lib_path)
+# If the code is run from the base directory, make sure that
+# PYTHONPATH is set to ./lib/pylib e.g:
+# export PYTHONPATH=$PYTHONPATH:./lib/pyblib
+
+# IndexBuildParams and IndexSearchParams have been documented
+# in lib/pylib/diskann.py
+diskAnn = DiskANN(shared_lib_path)
 idx_bld_params = IndexBuildParams(metric="l2", 
                                   graph_degree=32, 
                                   search_list_size=50,
@@ -58,7 +66,7 @@ idx_srch_params = IndexSearchParams(num_nodes_to_cache=100000,
                                     num_threads=32, 
                                     beam_width=4,
                                     search_list_size=60)
-
+num_neighbours = 10
 query_res = diskAnn.search_disk_index(np_vecs, num_neighbours, idx_srch_params)
 
 ```
