@@ -1,5 +1,9 @@
 # DiskANN
 
+This is a local copy of the original DiskANN project. Code has been modified so that it compiles on Mac.
+Python bindings have also been added to the project. Pull Request to merge this code with the
+original project will be raised soon.
+
 The goal of the project is to build scalable, performant and cost-effective approximate nearest neighbor search algorithms.
 This release has the code from the [DiskANN paper](https://papers.nips.cc/paper/9527-rand-nsg-fast-accurate-billion-point-nearest-neighbor-search-on-a-single-node.pdf) published in NeurIPS 2019, and improvements. 
 This code reuses and builds upon some of the [code for NSG](https://github.com/ZJULearning/nsg) algorithm.
@@ -9,6 +13,55 @@ For more information see the [Code of Conduct FAQ](https://opensource.microsoft.
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 See [guidelines](CONTRIBUTING.md) for contributing to this project.
+
+## Mac Build:
+
+Install the following packages
+
+```bash
+brew install gperftools boost llvm clang-format
+```
+
+### Install MKL
+Download and install [MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html?operatingsystem=mac&distributions=webdownload&options=online)
+
+### Build
+```bash
+mkdir build && cd build && cmake .. && make -j
+```
+
+### Python Bindings
+Python bindings have been implemented under lib/pylib folder
+
+#### Building Disk Index
+```python
+from diskann import IndexBuildParams, IndexSearchParams, DiskANN
+
+shared_lib_path = "./build/lib/pylib/libpydisk_index.dylib"
+index_path = "./DiskANN_data/sift"
+
+# np_vecs represents a numpy array containing input vectors
+diskAnn = DiskAnn(shared_lib_path)
+idx_bld_params = IndexBuildParams(metric="l2", 
+                                  graph_degree=32, 
+                                  search_list_size=50,
+                                  max_mem_build=1.0)
+
+diskAnn.build_disk_index(index_path, np_vecs, idx_bld_params)
+
+```
+
+#### Searching Disk Index
+```python
+
+idx_srch_params = IndexSearchParams(num_nodes_to_cache=100000, 
+                                    num_threads=32, 
+                                    beam_width=4,
+                                    search_list_size=60)
+
+query_res = diskAnn.search_disk_index(np_vecs, num_neighbours, idx_srch_params)
+
+```
 
 
 
