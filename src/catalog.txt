@@ -1,0 +1,5 @@
+bigann
+/Users/abhay.shete/Downloads/siftsmall/test_raw.bin
+/Users/abhay.shete/Downloads/siftsmall/test_raw.bin
+float
+mips
