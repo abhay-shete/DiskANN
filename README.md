@@ -31,7 +31,13 @@ mkdir build && cd build && cmake .. && make -j
 ```
 
 ### Python Bindings
-Python bindings have been implemented under lib/pylib folder
+Python bindings have been implemented under lib/pylib folder. 
+setup.py file has been provided in the same directory. Module can be installed by executing the following commands
+
+```bash
+cd lib/pyblib
+python setup.py install
+```
 
 #### Building Disk Index
 ```python
