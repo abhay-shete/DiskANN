@@ -28,12 +28,15 @@ extern "C" {
     }
 
 
-    int search_index(const char* indexFilePath, const char* queryFilePath, const char* resFilePath, const char* indexBuildParameters, uint32_t num_neighbours) 
+    int search_index(const char* indexFilePath, const char* str_metric, const char* queryFilePath, const char* resFilePath, const char* indexBuildParameters, uint32_t num_neighbours)
     {
       diskann::Metric metric = diskann::Metric::L2;
+
+      if (std::string(str_metric) == std::string("mips"))
+        metric = diskann::Metric::INNER_PRODUCT;
+
       return diskann::search_disk_index<float>(indexFilePath, metric, 
                                     "float", queryFilePath, resFilePath, indexBuildParameters, num_neighbours);
 
     }
-
 }

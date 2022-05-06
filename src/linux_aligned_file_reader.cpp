@@ -25,8 +25,10 @@ namespace {
     }
 #endif
     for (auto &req : read_reqs) {
-        lseek(fd, req.offset, 0);
-        read(fd, req.buf, req.len);
+        // Since this function is called from multiple threads
+        // pread is better than read as the file pointer
+        // remains unchanged
+        pread(fd, req.buf, req.len, req.offset);
     }
   }
 #else

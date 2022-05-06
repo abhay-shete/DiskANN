@@ -81,8 +81,8 @@ class IndexBuildParams:
 
 
 class IndexSearchParams:
-    def __init__(self, num_nodes_to_cache=10000, num_threads=10, beam_width=1,
-                 search_list_size=60):
+    def __init__(self, num_nodes_to_cache=200000, num_threads=10, beam_width=4,
+                 search_list_size=20):
         """
         Parameters
         ----------
@@ -90,21 +90,23 @@ class IndexSearchParams:
         num_nodes_to_cache: int
             While serving the index, the entire graph is stored on SSD.
             For faster search performance, you can cache a few frequently
-            accessed nodes in memory.
+            accessed nodes in memory. Higher value provides better recall.
 
         num_threads: int
             Number of parallel search threads
 
         beam_width: int
-            The  beamwidth to be used for search. This is the maximum number of
+            The  beam width to be used for search. This is the maximum number of
             IO requests each query will issue per iteration of search code.
-            Larger beamwidth will result in fewer IO round-trips per query,
+            Larger beam width will result in fewer IO round-trips per query,
             but might result in slightly higher total number of IO requests to SSD
             per query. For the highest query throughput with a fixed SSD IOps rating,
             use beam_width=1. For best latency, use beam_width=4,8 or higher complexity search
 
         search_list_size: int
-            Size of the node search list during search. Higher value means better recall.
+            Size of the node search list during search. Higher value results in better recall
+            at the cost of query throughput. Range varied from k+10 to k+40 for the SIFT 1 million
+            dataset, where k is the number of near neighbours
 
         """
         self.num_nodes_to_cache = num_nodes_to_cache
@@ -120,17 +122,20 @@ class IndexSearchParams:
 
 
 class DiskANN:
-    def __init__(self, lib_path):
+    def __init__(self, lib_path, index_path=None, metric="mips"):
         self.lib_path = lib_path
         self.handle = ctypes.CDLL(lib_path)
-        self.handle.build_index.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
+        self.handle.build_index.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
         self.handle.search_index.argtypes = [ctypes.c_char_p,
+                                             ctypes.c_char_p,
                                              ctypes.c_char_p,
                                              ctypes.c_char_p,
                                              ctypes.c_char_p,
                                              ctypes.c_uint]
         self.sizeof_uint = 4
-        self.index_path = None
+        if index_path is not None:
+            self.index_path = str.encode(index_path)
+        self.metric = metric
 
     def save_bin_file(self, vecs):
         header = np.array([vecs.shape[0], vecs.shape[1]])
@@ -159,6 +164,7 @@ class DiskANN:
         self.index_path = str.encode(index_path)
         if index_params is None:
             index_params = IndexBuildParams()
+        self.metric = index_params.metric
         index_params_str = str.encode(str(index_params))
         return self.handle.build_index(vec_bin_path, self.index_path,
                                        str.encode(index_params.metric), index_params_str)
@@ -187,6 +193,7 @@ class DiskANN:
             index_search_params = IndexSearchParams()
 
         self.handle.search_index(self.index_path,
+                                 str.encode(self.metric),
                                  str.encode(query_file_path),
                                  str.encode(res_prefix),
                                  str.encode(str(index_search_params)),
