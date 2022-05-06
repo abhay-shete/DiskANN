@@ -71,6 +71,7 @@ num_neighbours = 10
 query_res = diskAnn.search_disk_index(np_vecs, num_neighbours, idx_srch_params)
 
 ```
+Explanatory notebook("Using DiskANN Python Bindings.ipynb") which downloads sample data and calls the DiskANN Python API to build and search index can be found in lib/pylib/
 
 It took 15 minutes to build the index with the parameters documented in the API above
 For the first 10k vectors used in the SIFT 1 million dataset with num_neighbours=10
